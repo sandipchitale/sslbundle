@@ -23,14 +23,15 @@ public class JDKSslBundleRegistrar implements SslBundleRegistrar {
 
     public static final String JAVA_SSL_BUNDLE = "JAVA_SSL_BUNDLE";
     public static final String JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME = JDKSslBundleRegistrar.class.getSimpleName().toLowerCase() + ".trustStorePassword";
-    public static final String DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD ="changeit";
+    public static final String DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD ="";
 
     private static SslBundle jdkSslBundle;
-    JDKSslBundleRegistrar(ApplicationContext applicationContext, Environment environment) {
+    JDKSslBundleRegistrar(Environment environment, PasswordProcessor passwordProcessor) {
         try (FileInputStream fis = new FileInputStream(System.getProperty("java.home") + "/lib/security/cacerts")) {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(fis, environment.getProperty(JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME,
-                    DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD).toCharArray());
+            char[] password = passwordProcessor.process(environment.getProperty(JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME,
+                            DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD).toCharArray());
+            trustStore.load(fis, password);
             SslStoreBundle sslStoreBundle = SslStoreBundle.of(null, null, trustStore);
             jdkSslBundle = SslBundle.of(sslStoreBundle);
         } catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException e) {
