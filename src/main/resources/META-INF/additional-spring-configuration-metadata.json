@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "jdksslbundleregistrar.trustStorePassword",
+      "type": "java.lang.String",
+      "description": "Specify the JDK truststore password."
+  }
+] }

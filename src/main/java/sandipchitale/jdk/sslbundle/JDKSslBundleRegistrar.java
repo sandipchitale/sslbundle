@@ -1,0 +1,52 @@
+package sandipchitale.jdk.sslbundle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.ssl.SslBundleRegistrar;
+import org.springframework.boot.ssl.SslBundle;
+import org.springframework.boot.ssl.SslBundleRegistry;
+import org.springframework.boot.ssl.SslStoreBundle;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
+@Component
+public class JDKSslBundleRegistrar implements SslBundleRegistrar {
+    private static final Logger LOG = LoggerFactory.getLogger(JDKSslBundleRegistrar.class);
+
+    public static final String JAVA_SSL_BUNDLE = "JAVA_SSL_BUNDLE";
+    public static final String JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME = JDKSslBundleRegistrar.class.getSimpleName().toLowerCase() + ".trustStorePassword";
+    public static final String DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD ="changeit";
+
+    private static SslBundle jdkSslBundle;
+    JDKSslBundleRegistrar(ApplicationContext applicationContext, Environment environment) {
+        try (FileInputStream fis = new FileInputStream(System.getProperty("java.home") + "/lib/security/cacerts")) {
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(fis, environment.getProperty(JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME,
+                    DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD).toCharArray());
+            SslStoreBundle sslStoreBundle = SslStoreBundle.of(null, null, trustStore);
+            jdkSslBundle = SslBundle.of(sslStoreBundle);
+        } catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException e) {
+            LOG.warn("Unable to initialize TrustManagerFactor and load default trustStore", e);
+        }
+    }
+
+    @Override
+    public void registerBundles(SslBundleRegistry registry) {
+        if (jdkSslBundle != null) {
+            registry.registerBundle(JAVA_SSL_BUNDLE, jdkSslBundle);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static SslBundle getJdkSslBundle() {
+        return jdkSslBundle;
+    }
+}
