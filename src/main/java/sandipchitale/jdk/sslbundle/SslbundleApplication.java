@@ -17,7 +17,7 @@ public class SslbundleApplication {
 
 	@Profile("printCertificates")
 	@Bean
-	public CommandLineRunner printCertificates(SslBundles sslBundles, RestTemplateBuilder restTemplateBuilder) {
+	public CommandLineRunner printCertificates(SslBundles sslBundles) {
 		return (args) -> {
 			SslBundle sslBundle = sslBundles.getBundle(JDKSslBundleRegistrar.JAVA_SSL_BUNDLE);
 			if (sslBundle != null) {
