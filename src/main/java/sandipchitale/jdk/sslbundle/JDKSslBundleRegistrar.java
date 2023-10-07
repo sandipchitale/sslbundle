@@ -34,7 +34,7 @@ public class JDKSslBundleRegistrar implements SslBundleRegistrar {
             SslStoreBundle sslStoreBundle = SslStoreBundle.of(null, null, trustStore);
             jdkSslBundle = SslBundle.of(sslStoreBundle);
         } catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException e) {
-            LOG.warn("Unable to initialize TrustManagerFactor and load default trustStore", e);
+            LOG.warn("Unable to initialize TrustManagerFactory and load default trustStore", e);
         }
     }
 
