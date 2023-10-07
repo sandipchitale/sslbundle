@@ -9,7 +9,6 @@ import org.springframework.boot.ssl.SslStoreBundle;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,7 +22,7 @@ import java.security.cert.CertificateException;
 public class JDKSslBundleRegistrar implements SslBundleRegistrar {
     private static final Logger LOG = LoggerFactory.getLogger(JDKSslBundleRegistrar.class);
 
-    public static final String JAVA_SSL_BUNDLE = "JAVA_SSL_BUNDLE";
+    public static final String JAVA_CACERTS_BUNDLE = "JAVA_CACERTS_BUNDLE";
     public static final String JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME = JDKSslBundleRegistrar.class.getSimpleName().toLowerCase() + ".trustStorePassword";
     public static final String DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD ="";
 
@@ -45,7 +44,7 @@ public class JDKSslBundleRegistrar implements SslBundleRegistrar {
     @Override
     public void registerBundles(SslBundleRegistry registry) {
         if (jdkSslBundle != null) {
-            registry.registerBundle(JAVA_SSL_BUNDLE, jdkSslBundle);
+            registry.registerBundle(JAVA_CACERTS_BUNDLE, jdkSslBundle);
         }
     }
 

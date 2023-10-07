@@ -19,7 +19,7 @@ public class SslbundleApplication {
 	@Bean
 	public CommandLineRunner printCertificates(SslBundles sslBundles) {
 		return (args) -> {
-			SslBundle sslBundle = sslBundles.getBundle(JDKSslBundleRegistrar.JAVA_SSL_BUNDLE);
+			SslBundle sslBundle = sslBundles.getBundle(JDKSslBundleRegistrar.JAVA_CACERTS_BUNDLE);
 			if (sslBundle != null) {
 				KeyStore trustStore = sslBundle.getStores().getTrustStore();
 				trustStore.aliases().asIterator().forEachRemaining(alias -> {
@@ -38,7 +38,7 @@ public class SslbundleApplication {
 	@Bean
 	public CommandLineRunner postmanEchoGet(SslBundles sslBundles, RestTemplateBuilder restTemplateBuilder) {
 		return (args) -> {
-			SslBundle sslBundle = sslBundles.getBundle(JDKSslBundleRegistrar.JAVA_SSL_BUNDLE);
+			SslBundle sslBundle = sslBundles.getBundle(JDKSslBundleRegistrar.JAVA_CACERTS_BUNDLE);
 			if (sslBundle != null) {
 				RestTemplate restTemplate = restTemplateBuilder.setSslBundle(sslBundle).build();
 				System.out.println(restTemplate.getForEntity("https://postman-echo.com/get", String.class).getBody());
