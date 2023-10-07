@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -26,11 +29,12 @@ public class JDKSslBundleRegistrar implements SslBundleRegistrar {
 
     private static SslBundle jdkSslBundle;
     JDKSslBundleRegistrar(Environment environment, PasswordProcessor passwordProcessor) {
-        try (FileInputStream fis = new FileInputStream(System.getProperty("java.home") + "/lib/security/cacerts")) {
+        try (InputStream is = Files.newInputStream(Path.of(System.getProperty("java.home"), "lib", "security", "cacerts"))) {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            char[] password = passwordProcessor.process(environment.getProperty(JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME,
+            char[] password = passwordProcessor.process(
+                    environment.getProperty(JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD_PROPERTY_NAME,
                             DEFAULT_JDKSSLBUNDLEREGISTRAR_TRUSTSTOREPASSWORD).toCharArray());
-            trustStore.load(fis, password);
+            trustStore.load(is, password);
             SslStoreBundle sslStoreBundle = SslStoreBundle.of(null, null, trustStore);
             jdkSslBundle = SslBundle.of(sslStoreBundle);
         } catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException e) {
